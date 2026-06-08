@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sql-server-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: glms-sql-server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - glms-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Passw0rd", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: glms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - glms-network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # GLMS Backend API
+  glms-backend-api:
+    build:
+      context: ..
+      dockerfile: src/GLMS.API/Dockerfile
+    container_name: glms-backend-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      sql-server-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - glms-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # GLMS Frontend Web
+  glms-frontend-web:
+    build:
+      context: ..
+      dockerfile: src/GLMS.Web/Dockerfile
+    container_name: glms-frontend-web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      glms-backend-api:
+        condition: service_healthy
+    networks:
+      - glms-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # NGINX Load Balancer / Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: glms-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - glms-backend-api
+      - glms-frontend-web
+    networks:
+      - glms-network
+    restart: unless-stopped
+
+volumes:
+  sql-data:
+  redis-data:
+
+networks:
+  glms-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,0 +1,68 @@
+@model List<ContractViewModel>
+@{
+    ViewData["Title"] = "Expiring Contracts";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Expiring Contracts</h2>
+        <p class="text-muted mb-0">Contracts ending within 30 days</p>
+    </div>
+    <a href="/Contracts" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>All Contracts
+    </a>
+</div>
+
+@if (Model.Any())
+{
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Contract #</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>End Date</th>
+                        <th>Days Remaining</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contract in Model)
+                    {
+                        var daysRemaining = (contract.EndDate - DateTime.Now).Days;
+                        <tr class="@(daysRemaining <= 7 ? "table-danger" : daysRemaining <= 14 ? "table-warning" : "")">
+                            <td>
+                                <a href="/Contracts/Details/@contract.Id" class="text-decoration-none fw-medium">
+                                    @contract.ContractNumber
+                                </a>
+                            </td>
+                            <td>@contract.ClientName</td>
+                            <td><span class="badge bg-secondary">@contract.Type</span></td>
+                            <td>@contract.ContractValue.ToString("C") @contract.Currency</td>
+                            <td>@contract.EndDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <span class="badge @(daysRemaining <= 7 ? "bg-danger" : "bg-warning text-dark")">
+                                    @daysRemaining days
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/Contracts/Details/@contract.Id" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-check-circle fs-1 text-success mb-3"></i>
+        <h4>No Expiring Contracts</h4>
+        <p class="text-muted">No contracts are ending within the next 30 days.</p>
+    </div>
+}

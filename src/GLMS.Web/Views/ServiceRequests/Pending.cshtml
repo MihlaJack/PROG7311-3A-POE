@@ -1,0 +1,59 @@
+@model List<ServiceRequestViewModel>
+@{
+    ViewData["Title"] = "Pending Requests";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0"><i class="bi bi-clock-history me-2"></i>Pending Service Requests</h2>
+        <p class="text-muted mb-0">Requests awaiting approval</p>
+    </div>
+    <a href="/ServiceRequests" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>All Requests
+    </a>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row g-4">
+        @foreach (var request in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@request.RequestNumber</h5>
+                            <span class="badge bg-warning text-dark">@request.Status</span>
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">@request.ClientName</h6>
+                        <p class="card-text">
+                            <span class="badge bg-secondary">@request.Type</span>
+                        </p>
+                        <p class="card-text small">@(request.Description?.Length > 100 ? request.Description.Substring(0, 100) + "..." : request.Description)</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">@request.RequestDate.ToString("MMM dd, yyyy")</small>
+                            <div class="d-flex gap-1">
+                                <a href="/ServiceRequests/Details/@request.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                {
+                                    <form asp-action="Approve" asp-route-id="@request.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-check-circle fs-1 text-success mb-3"></i>
+        <h4>No Pending Requests</h4>
+        <p class="text-muted">All service requests have been processed.</p>
+    </div>
+}

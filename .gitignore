@@ -1,0 +1,27 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+.vs/
+.vscode/
+
+# Docker
+.dockerignore
+
+# Environment
+appsettings.Development.json
+appsettings.Production.json
+*.db
+
+# Logs
+logs/
+*.log
+
+# Test Results
+TestResults/
+
+# OS
+.DS_Store
+Thumbs.db

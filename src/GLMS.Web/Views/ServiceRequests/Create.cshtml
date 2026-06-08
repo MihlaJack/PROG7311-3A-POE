@@ -1,0 +1,80 @@
+@model CreateServiceRequestViewModel
+@{
+    ViewData["Title"] = "Create Service Request";
+    var activeContracts = ViewBag.ActiveContracts as List<ContractViewModel> ?? new List<ContractViewModel>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Create New Service Request</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="ContractId" class="form-label"></label>
+                            <select asp-for="ContractId" class="form-select" required>
+                                <option value="">Select a contract...</option>
+                                @foreach (var contract in activeContracts)
+                                {
+                                    <option value="@contract.Id">@contract.ContractNumber - @contract.ClientName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ContractId" class="text-danger small"></span>
+                            @if (!activeContracts.Any())
+                            {
+                                <small class="text-danger">No active contracts available. <a href="/Contracts/Create">Create a contract first</a>.</small>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Type" class="form-label"></label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="Freight">Freight</option>
+                                <option value="Warehousing">Warehousing</option>
+                                <option value="ExpressDelivery">Express Delivery</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EstimatedCost" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="EstimatedCost" class="form-control" type="number" step="0.01" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ScheduledDate" class="form-label"></label>
+                            <input asp-for="ScheduledDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PickupLocation" class="form-label"></label>
+                            <input asp-for="PickupLocation" class="form-control" placeholder="Pickup address..." />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DeliveryLocation" class="form-label"></label>
+                            <input asp-for="DeliveryLocation" class="form-control" placeholder="Delivery address..." />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Service request description..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" @(activeContracts.Any() ? "" : "disabled")>
+                            <i class="bi bi-check-lg me-1"></i>Create Request
+                        </button>
+                        <a href="/ServiceRequests" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

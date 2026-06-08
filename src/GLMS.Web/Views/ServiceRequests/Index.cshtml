@@ -1,0 +1,99 @@
+@model PagedServiceRequestsViewModel
+@{
+    ViewData["Title"] = "Service Requests";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0"><i class="bi bi-truck me-2"></i>Service Requests</h2>
+        <p class="text-muted mb-0">Manage logistics service requests</p>
+    </div>
+    <a href="/ServiceRequests/Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>New Request
+    </a>
+</div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Request #</th>
+                    <th>Contract</th>
+                    <th>Client</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Estimated Cost</th>
+                    <th>Request Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <a href="/ServiceRequests/Details/@request.Id" class="text-decoration-none fw-medium">
+                                @request.RequestNumber
+                            </a>
+                        </td>
+                        <td>@request.ContractNumber</td>
+                        <td>@request.ClientName</td>
+                        <td><span class="badge bg-secondary">@request.Type</span></td>
+                        <td>
+                            @switch (request.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning text-dark">@request.Status</span>
+                                    break;
+                                case "Approved":
+                                    <span class="badge bg-info">@request.Status</span>
+                                    break;
+                                case "InProgress":
+                                    <span class="badge bg-primary">@request.Status</span>
+                                    break;
+                                case "Completed":
+                                    <span class="badge bg-success">@request.Status</span>
+                                    break;
+                                case "Cancelled":
+                                    <span class="badge bg-secondary">@request.Status</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@(request.EstimatedCost?.ToString("C") ?? "N/A")</td>
+                        <td>@request.RequestDate.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <a href="/ServiceRequests/Details/@request.Id" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(Model.PageNumber - 1)">Previous</a>
+                    </li>
+                }
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="?page=@i">@i</a>
+                    </li>
+                }
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(Model.PageNumber + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

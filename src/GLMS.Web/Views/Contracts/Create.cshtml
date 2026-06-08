@@ -1,0 +1,99 @@
+@model CreateContractViewModel
+@{
+    ViewData["Title"] = "Create Contract";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Create New Contract</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="ContractNumber" class="form-label"></label>
+                            <input asp-for="ContractNumber" class="form-control" placeholder="e.g., CNT-2024-001" />
+                            <span asp-validation-for="ContractNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Type" class="form-label"></label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="Freight">Freight</option>
+                                <option value="Warehousing">Warehousing</option>
+                                <option value="ExpressDelivery">Express Delivery</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ClientName" class="form-label"></label>
+                            <input asp-for="ClientName" class="form-control" placeholder="Client company name" />
+                            <span asp-validation-for="ClientName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ClientEmail" class="form-label"></label>
+                            <input asp-for="ClientEmail" class="form-control" placeholder="client@example.com" />
+                            <span asp-validation-for="ClientEmail" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ClientPhone" class="form-label"></label>
+                            <input asp-for="ClientPhone" class="form-control" placeholder="+1-555-0000" />
+                            <span asp-validation-for="ClientPhone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Currency" class="form-label"></label>
+                            <select asp-for="Currency" class="form-select">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label"></label>
+                            <input asp-for="StartDate" class="form-control" type="date" />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label"></label>
+                            <input asp-for="EndDate" class="form-control" type="date" />
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContractValue" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="ContractValue" class="form-control" type="number" step="0.01" />
+                            </div>
+                            <span asp-validation-for="ContractValue" class="text-danger small"></span>
+                            <small class="text-muted">Min: Freight $1,000 | Warehousing $5,000 | Express $500</small>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Contract description..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="ServiceLevelAgreement" class="form-label"></label>
+                            <textarea asp-for="ServiceLevelAgreement" class="form-control" rows="2" placeholder="Service level agreement terms..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>Create Contract
+                        </button>
+                        <a href="/Contracts" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
